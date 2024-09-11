@@ -1,4 +1,4 @@
-deploy: False
+deploy: True
 tag: scratch
 seed: 2
 use_wandb: False

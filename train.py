@@ -101,6 +101,7 @@ def train(cfg, model, dataloader, optimizer, device):
             # (B, L) -> (B, L-1), (B, L-1)
             B = sequences.size(0)
             inputs, labels = move_to_device([sequences[:,:-1], sequences[:,1:]], device)
+            labels = labels.clone()
             labels[labels == dataloader.dataset.pad_token_id] = -100  # Mask padding
 
             samples_per_task = {

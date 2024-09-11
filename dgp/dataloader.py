@@ -252,5 +252,4 @@ class PCSGDataset():
                     torch.tensor([self.pad_token_id] * (self.max_sample_length - len(sequence)))
                     ))
                 break
-
         return sequence, symb_sequence, seq_length, seq_logprob, 0
