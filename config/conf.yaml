@@ -1,8 +1,9 @@
-deploy: True
+deploy: False
 tag: scratch
 seed: 2
+use_wandb: False
 
-device: "cuda:2"
+device: "cuda"
 bf16: True
 epochs: 1
 
@@ -18,7 +19,7 @@ data:
   max_sample_length: 128
   num_iters: 1e6
   batch_size: 128 
-  num_workers: 4
+  num_workers: 0
 
 model:
   compile: False

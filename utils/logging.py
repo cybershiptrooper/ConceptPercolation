@@ -56,8 +56,8 @@ def open_log(cfg):
     if cfg.deploy:
         fname = 'logs/' + cfg.tag + '/' + wandb.run.id + ".log"
         fout = open(fname, "a", 1)
-        sys.stdout = fout
-        sys.stderr = fout
+        # sys.stdout = fout
+        # sys.stderr = fout
         print(cfg)
         return fout
 
@@ -66,7 +66,10 @@ def save_config(cfg):
     """
     Save configuration to file
     """
-    results_dir = 'results/' + cfg.tag + "/" + wandb.run.id
+    if cfg.deploy:
+        results_dir = 'results/' + cfg.tag + "/" + wandb.run.id
+    else:
+        results_dir = 'results/' + cfg.tag + "/local"
     os.makedirs(results_dir, exist_ok=True)
     with open(results_dir + '/conf.yaml', 'w') as f:
         yaml.dump(OmegaConf.to_container(cfg), f)
@@ -79,7 +82,7 @@ def init_wandb(cfg, project_name):
     if cfg.deploy:
         wandb.init(
             project=project_name,
-            entity='sodl'
+            entity='cybershiptrooper'
             )
         wandb.run.name = wandb.run.id
         wandb.run.save()

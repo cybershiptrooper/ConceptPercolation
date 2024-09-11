@@ -18,7 +18,7 @@ def get_dataloader(
         max_sample_length: int=128,
         num_iters: int = 1e6, 
         batch_size: int = 32, 
-        num_workers: int = 4,
+        num_workers: int = 0,
         seed: int = 42,
         ):
     """

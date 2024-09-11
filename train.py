@@ -1,6 +1,7 @@
 import hydra 
 import torch
 import torch.nn.functional as F
+from tqdm import tqdm
 
 from model import GPT
 from dgp import get_dataloader
@@ -90,7 +91,7 @@ def train(cfg, model, dataloader, optimizer, device):
     results_dir = save_model(cfg, model, optimizer, it)
 
     # Training loop
-    for _ in range(cfg.epochs):
+    for _ in tqdm(range(cfg.epochs)):
         for sequences, symb_sequences, seq_lengths, seq_logprobs, _ in dataloader:
             if it > cfg.optimizer.train_iters: # Training destabilizes after a certain point when the loss is too low, so we break
                 save_model(cfg, model, optimizer, it)
