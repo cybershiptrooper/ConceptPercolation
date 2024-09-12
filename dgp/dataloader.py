@@ -61,7 +61,7 @@ def get_dataloader(
                 dataset,
                 sampler=torch.utils.data.RandomSampler(dataset, replacement=True), 
                 shuffle=False,
-                pin_memory=True,
+                pin_memory=False,
                 batch_size=batch_size,
                 num_workers=num_workers,
             )

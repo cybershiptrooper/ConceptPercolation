@@ -14,11 +14,11 @@ from utils import save_model, move_to_device, log_train, log_eval
 @hydra.main(config_path="./config/", config_name="conf.yaml", version_base="1.3")
 def main(cfg):
     set_seed(cfg.seed)
-    save_config(cfg)
     # fp = open_log(cfg)
     device = cfg.device if torch.cuda.is_available() else 'cpu'
 
     # Dataloader
+    print("Making dataloader")
     dataloader = get_dataloader(
         n_relative_properties=cfg.data.n_relative_properties,
         n_descriptive_properties=cfg.data.n_descriptive_properties,
@@ -34,6 +34,7 @@ def main(cfg):
         num_workers=cfg.data.num_workers,
         seed=cfg.seed,
     )
+    print("Finished making Dataloader")
 
     # Check if model is compatible with data
     sanity_checks(cfg, dataloader.dataset.max_sample_length)
@@ -50,6 +51,7 @@ def main(cfg):
 
     # Train
     init_wandb(cfg, project_name="concept_percolation")
+    save_config(cfg)
     train(cfg, model, dataloader, optimizer, device)
 
     # Close wandb and log file
@@ -91,8 +93,8 @@ def train(cfg, model, dataloader, optimizer, device):
     results_dir = save_model(cfg, model, optimizer, it)
 
     # Training loop
-    for _ in tqdm(range(cfg.epochs)):
-        for sequences, symb_sequences, seq_lengths, seq_logprobs, _ in dataloader:
+    for _ in range(cfg.epochs):
+        for sequences, symb_sequences, seq_lengths, seq_logprobs, _ in tqdm(dataloader):
             if it > cfg.optimizer.train_iters: # Training destabilizes after a certain point when the loss is too low, so we break
                 save_model(cfg, model, optimizer, it)
                 break

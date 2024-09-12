@@ -543,7 +543,8 @@ def eval_reachable_pairs(model, grammar, device, K=2000):
     # Eval model
     with torch.no_grad():
         for task in ['freegen', 'unscramble']:
-
+            if torch.cuda.is_available() and device == 'cuda':
+                torch.cuda.empty_cache()
             # Logits (remove EOS token)
             logits = model(inputs[task][:, :-1]) # [B, L, V]
 
