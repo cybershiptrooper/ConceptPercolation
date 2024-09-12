@@ -108,7 +108,7 @@ def log_train(it, deploy, lr, train_loss, train_lengths):
         wandb.log({
             "train": {k: np.mean(v) for k, v in train_loss.items()},
             "iteration": it,
-            "lr": lr
+            "lr": lr,
             })
 
         for k, v in train_lengths.items():
@@ -217,7 +217,7 @@ def log_eval(deploy, it, save_tables, cfg_save_tables, grammaticality_results,
 
 
 # Save model
-def save_model(cfg, net, optimizer, it, save_init=False):
+def save_model(cfg, net, optimizer, it, epoch, save_init=False):
     """
     Save model checkpoint
     """
@@ -227,13 +227,17 @@ def save_model(cfg, net, optimizer, it, save_init=False):
             'optimizer': optimizer.state_dict(),
             'iter': it,
             'config': cfg,
+            'epoch': epoch
         }
 
         fdir = 'results/' + cfg.tag + "/" + wandb.run.id
         os.makedirs(fdir, exist_ok=True)
         if cfg.log.save_multiple:
-            fname = os.path.join(fdir, 'ckpt_' + str(it+1) + '.pt')
+            fname = os.path.join(fdir, f'ckpt_epoch_{epoch}_iter_{it}.pt')
         else:
             fname = os.path.join(fdir, 'latest_ckpt.pt')
         torch.save(checkpoint, fname)
+        # save to wandb
+        wandb.save(fname)
+        print(f"Saved model to {fname}")
         return fdir
