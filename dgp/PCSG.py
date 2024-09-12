@@ -476,7 +476,7 @@ class PCSG:
                 # Fill values for descriptive VPs
                 for desc_verb_loc in where_desc_verbs:
                     desc_prop_name, pval = subject_class.sample_descriptive_property()
-                    values_logprob += np.log(pval)
+                    values_logprob += np.log(pval + 1e-10)
                     conditioning_info[phrase_id]['properties'].append(desc_prop_name)
 
                     subj_loc = where_subject_ids[np.where(where_subject_ids < desc_verb_loc)[0][-1]]
@@ -485,7 +485,7 @@ class PCSG:
                         rotation_key=rotation_key,
                         prior_alter_method=prior_alter_method
                         )
-                    values_logprob += np.log(pval)
+                    values_logprob += np.log(pval + 1e-10)
                     phrase[desc_verb_loc] = desc_prop_value
                     conditioning_info[phrase_id]['descriptor_subjs'].append(rotation_subj)
                     if 'adj' in desc_prop_value:
