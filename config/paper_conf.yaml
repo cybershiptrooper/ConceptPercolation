@@ -7,13 +7,13 @@ bf16: True
 epochs: 1
 
 data:
-  n_relative_properties: 100
-  n_descriptive_properties: 460
-  n_descriptive_values: 40
-  n_entities: 100
+  n_relative_properties: 2640
+  n_descriptive_properties: 12160
+  n_descriptive_values: 40 # TODO: Can't find this in the paper... Is this the correct value?
+  n_entities: 900
   num_of_classes_to_divide_over: 10
   prior_param: 0.1
-  props_prior_type: 'structured_zeros'
+  props_prior_type: 'structured_zeros' # TODO: what is this for?
   instr_ratio: 0.8
   max_sample_length: 128
   num_iters: 1e5
