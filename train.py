@@ -13,10 +13,9 @@ from utils import save_model, move_to_device, log_train, log_eval
 
 @hydra.main(config_path="./config/", config_name="conf.yaml", version_base="1.3")
 def main(cfg):
-    init_wandb(cfg, project_name="concept_percolation")
     set_seed(cfg.seed)
     save_config(cfg)
-    fp = open_log(cfg)
+    # fp = open_log(cfg)
     device = cfg.device if torch.cuda.is_available() else 'cpu'
 
     # Dataloader
@@ -50,10 +49,11 @@ def main(cfg):
     optimizer = configure_optimizers(model, cfg.optimizer)
 
     # Train
+    init_wandb(cfg, project_name="concept_percolation")
     train(cfg, model, dataloader, optimizer, device)
 
     # Close wandb and log file
-    cleanup(cfg, fp)
+    cleanup(cfg)
 
 
 def train(cfg, model, dataloader, optimizer, device):

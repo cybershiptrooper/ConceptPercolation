@@ -1,5 +1,5 @@
 deploy: True
-tag: scratch
+tag: paper
 seed: 2
 
 device: "cuda"
@@ -53,7 +53,7 @@ log:
   log_interval: 10
   eval_interval: 100
   save_multiple: True
-  save_interval: 100
+  save_interval: 200
 
 
 # Nested configs. Disable hydra logging

@@ -89,14 +89,14 @@ def init_wandb(cfg, project_name):
         wandb.config.update(OmegaConf.to_container(cfg))
 
 
-def cleanup(cfg, fp):
+def cleanup(cfg):
     """
     Close log file and wandb
     """
     if cfg.deploy:
-        fp.close()
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+        # fp.close()
+        # sys.stdout = sys.__stdout__
+        # sys.stderr = sys.__stderr__
         wandb.finish()
 
 
@@ -217,7 +217,7 @@ def log_eval(deploy, it, save_tables, cfg_save_tables, grammaticality_results,
 
 
 # Save model
-def save_model(cfg, net, optimizer, it, epoch, save_init=False):
+def save_model(cfg, net, optimizer, it, epoch=0, save_init=False):
     """
     Save model checkpoint
     """
