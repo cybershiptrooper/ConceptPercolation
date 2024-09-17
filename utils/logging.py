@@ -224,7 +224,7 @@ def save_model(cfg, net, optimizer, it, epoch=0, save_init=False):
     if cfg.deploy:
         checkpoint = {
             'net': net.state_dict(),
-            'optimizer': optimizer.state_dict(),
+            # 'optimizer': optimizer.state_dict(),
             'iter': it,
             'config': cfg,
             'epoch': epoch
