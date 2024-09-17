@@ -343,6 +343,7 @@ def dividePropertiesIntoConceptClasses(
         classes_to_properties_map[c] = np.sort(
             np.concatenate((partition[c]['shared'], partition[c]['unique']), axis=0)
             )
+        # TODO: Why do we need this??
         descriptive_properties = np.setdiff1d(descriptive_properties, partition[c]['unique'])
 
     return partition, classes_to_properties_map

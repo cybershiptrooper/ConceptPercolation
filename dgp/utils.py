@@ -29,6 +29,9 @@ def define_prior(prior_size: int, alpha: float = 7e-2, prior_type: str = 'dirich
         raise ValueError(f"Invalid prior type: {prior_type}")
 
     x = np.random.permutation(x)
+    if np.isnan((x / x.sum()).squeeze() ).any():
+        assert x == [0.], RuntimeError("Got unexpected prior distribution")
+        return 1
     return (x / x.sum()).squeeze()
 
 

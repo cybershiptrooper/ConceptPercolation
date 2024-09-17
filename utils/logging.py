@@ -238,6 +238,6 @@ def save_model(cfg, net, optimizer, it, epoch=0, save_init=False):
             fname = os.path.join(fdir, 'latest_ckpt.pt')
         torch.save(checkpoint, fname)
         # save to wandb
-        wandb.save(fname)
+        # wandb.save(fname)
         print(f"Saved model to {fname}")
         return fdir
