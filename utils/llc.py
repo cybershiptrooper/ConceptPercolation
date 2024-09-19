@@ -10,7 +10,7 @@ from devinterp.slt.sampler import estimate_learning_coeff_with_summary
 from model import GPT
 from utils import move_to_device
 
-from .io import load_model_for_iteration
+from .loading import load_model_for_iteration
 
 
 def evaluate_fn(model, data, pad_token_id, config):

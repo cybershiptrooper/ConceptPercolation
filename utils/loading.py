@@ -4,12 +4,37 @@ from dataclasses import dataclass
 import torch
 import yaml
 
+import huggingface_hub
+import os
 
 def load_model_for_iteration(
     it, dirname, epoch=0, device="cuda" if torch.cuda.is_available() else "cpu"
 ):
     fname = f"ckpt_epoch_{epoch}_iter_{it}.pt"
     return torch.load(f"{dirname}/{fname}", map_location=device)
+
+def load_model_from_hf(
+    repo_name, 
+    it,
+    epoch=0,
+    device="cuda" if torch.cuda.is_available() else "cpu",
+    branch="main",
+    repo_type="model",
+    local_dir = "./cache",
+    clear_cache=True,
+):
+    file_name = f"ckpt_epoch_{epoch}_iter_{it}.pt"
+    file = huggingface_hub.hf_hub_download(
+        repo_id=repo_name,
+        repo_type=repo_type,
+        filename=file_name,
+        revision=branch,
+        local_dir=local_dir,
+    )
+    model = load_model_for_iteration(it, dirname=local_dir, epoch=epoch, device=device)
+    if clear_cache:
+        os.remove(file)
+    return model
 
 
 @dataclass
