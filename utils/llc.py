@@ -30,7 +30,7 @@ def evaluate_fn(model, data, pad_token_id, config):
     return loss, {}
 
 
-def estimate_llc_given_model(
+def estimate_llc_for_model(
     model: torch.nn.Module,
     loader: torch.utils.data.DataLoader,
     evaluate: typing.Callable,
@@ -42,7 +42,7 @@ def estimate_llc_given_model(
     num_draws: int = 300,
     num_burnin_steps: int = 0,
     num_steps_bw_draws: int = 1,
-    device: torch.device = torch.device("cpu"),
+    device: torch.device | str = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
     online: bool = True,
     verbose: bool = False,
 ):
@@ -65,14 +65,18 @@ def estimate_llc_given_model(
     return sweep_stats
 
 
-def calculate_llc_default(
+def calculate_llc_for_file(
     iteration,
     dataloader,
     model_dir,
     config,
-    device: str ="cuda" if torch.cuda.is_available() else "cpu",
-    model_loader: callable = load_model_for_iteration,
+    evaluate_fn: typing.Callable,
+    model_loader: typing.Callable = load_model_for_iteration,
+    optimizer_kwargs: dict = dict(lr=1e-3, localization=200.0, nbeta=30),
+    num_chains: int = 5,
+    num_draws: int = 100,
 ):
+    device = config.device
     if torch.cuda.is_available() and device == "cuda":
         torch.cuda.empty_cache()
     model_info = model_loader(iteration, model_dir, epoch=0)
@@ -85,9 +89,9 @@ def calculate_llc_default(
         loader=dataloader,
         evaluate=evaluate_fn,
         sampling_method=SGLD,
-        optimizer_kwargs=dict(lr=1e-3, localization=200.0, nbeta=30),
-        num_chains=5,
-        num_draws=100,
+        optimizer_kwargs=optimizer_kwargs,
+        num_chains=num_chains,
+        num_draws=num_draws,
         num_burnin_steps=0,
         num_steps_bw_draws=1,
         device=config.device,

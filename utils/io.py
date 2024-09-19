@@ -28,8 +28,8 @@ class Conf:
     def __str__(self) -> str:
         return self.__repr__()
 
-    @staticmethod
-    def load_from_yaml(config_file):
+    @classmethod
+    def load_from_yaml(cls, config_file):
         loader = yaml.SafeLoader
         loader.add_implicit_resolver(
             "tag:yaml.org,2002:float",
@@ -48,4 +48,4 @@ class Conf:
 
         conf_yaml = yaml.load(open(config_file), Loader=loader)
 
-        return Conf(**conf_yaml)
+        return cls(**conf_yaml)
