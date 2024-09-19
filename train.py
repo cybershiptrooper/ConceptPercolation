@@ -215,6 +215,8 @@ def train(cfg, model, dataloader, optimizer, device):
             # Save model every few iterations
             if it % cfg.log.save_interval == 0:
                 save_model(cfg, model, optimizer, it)
+                if cfg.increase_save_interval and it / cfg.log.save_interval >= 110:
+                    cfg.log.save_interval = max(10 * cfg.log.save_interval, 500)
             if save_grammar:
                 dataloader.dataset.save_grammar(results_dir)
                 save_grammar = False # Save only once
