@@ -10,7 +10,7 @@ data:
   n_relative_properties: 100
   n_descriptive_properties: 460
   n_descriptive_values: 40
-  n_entities: 100
+  n_entities: 900
   num_of_classes_to_divide_over: 10
   prior_param: 0.1
   props_prior_type: 'structured_zeros'

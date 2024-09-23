@@ -74,3 +74,7 @@ class Conf:
         conf_yaml = yaml.load(open(config_file), Loader=loader)
 
         return cls(**conf_yaml)
+
+    @classmethod
+    def load_from_dict(cls, conf_dict):
+        return cls(**conf_dict)

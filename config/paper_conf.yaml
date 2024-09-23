@@ -1,5 +1,5 @@
 deploy: True
-tag: paper
+tag: scratch
 seed: 2
 
 device: "cuda"
@@ -7,15 +7,15 @@ bf16: True
 epochs: 1
 
 data:
-  n_relative_properties: 2640
-  n_descriptive_properties: 12160
-  n_descriptive_values: 40 # TODO: Can't find this in the paper... Is this the correct value?
+  n_relative_properties: 100
+  n_descriptive_properties: 460
+  n_descriptive_values: 40
   n_entities: 900
   num_of_classes_to_divide_over: 10
   prior_param: 0.1
-  props_prior_type: 'structured_zeros' # TODO: what is this for?
+  props_prior_type: 'structured_zeros'
   instr_ratio: 0.8
-  max_sample_length: 128
+  max_sample_length: 75
   num_iters: 1e5
   batch_size: 128 
   num_workers: 0
@@ -53,7 +53,8 @@ log:
   log_interval: 10
   eval_interval: 100
   save_multiple: True
-  save_interval: 200
+  save_interval: 10
+  increase_save_interval: False
 
 
 # Nested configs. Disable hydra logging
