@@ -30,7 +30,8 @@ def define_prior(prior_size: int, alpha: float = 7e-2, prior_type: str = 'dirich
 
     x = np.random.permutation(x)
     if np.isnan((x / x.sum()).squeeze() ).any():
-        assert x == [0.], RuntimeError("Got unexpected prior distribution")
+        # assert x all zeros
+        assert (x == 0).all(), RuntimeError(f"Got unexpected prior distribution, {x}")
         return 1
     return (x / x.sum()).squeeze()
 

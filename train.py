@@ -11,7 +11,7 @@ from utils import init_wandb, set_seed, save_config, open_log, cleanup
 from utils import sanity_checks, configure_optimizers, update_cosine_warmup_lr
 from utils import save_model, move_to_device, log_train, log_eval
 
-@hydra.main(config_path="./config/", config_name="conf.yaml", version_base="1.3")
+@hydra.main(config_path="./config", config_name="conf_98_464.yaml", version_base="1.3")
 def main(cfg):
     set_seed(cfg.seed)
     # fp = open_log(cfg)
@@ -119,7 +119,7 @@ def train(cfg, model, dataloader, optimizer, device):
                 }
 
             # Log train metrics
-            if it % cfg.log.log_interval == 0:
+            if it % cfg.log.log_interval == 0 and it > 0:
                 train_loss = log_train(it, cfg.deploy, lr, train_loss, train_lengths)
 
             # Evals
@@ -215,7 +215,7 @@ def train(cfg, model, dataloader, optimizer, device):
             # Save model every few iterations
             if it % cfg.log.save_interval == 0:
                 save_model(cfg, model, optimizer, it)
-                if cfg.increase_save_interval and it / cfg.log.save_interval >= 110:
+                if cfg.log.increase_save_interval and it / cfg.log.save_interval >= 110:
                     cfg.log.save_interval = max(10 * cfg.log.save_interval, 500)
             if save_grammar:
                 dataloader.dataset.save_grammar(results_dir)

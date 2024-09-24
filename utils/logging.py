@@ -20,9 +20,7 @@ def sanity_checks(cfg, max_sample_length):
     assert(cfg.model.n_embd % cfg.model.n_head == 0)
 
     # Check if BF16 is supported
-    if not torch.cuda.is_available():
-        warnings.warn("WARNING: running on CPU", UserWarning)
-    else:
+    if torch.cuda.is_available():
         if not torch.cuda.is_bf16_supported():
             warnings.warn("WARNING: running without BF16", UserWarning)
 

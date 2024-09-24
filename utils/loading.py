@@ -78,3 +78,22 @@ class Conf:
     @classmethod
     def load_from_dict(cls, conf_dict):
         return cls(**conf_dict)
+
+    def to_dict(self):
+        dict_conf = {}
+        for k, v in self.__dict__.items():
+            if isinstance(v, Conf):
+                dict_conf[k] = v.to_dict()
+            else:
+                dict_conf[k] = v
+        return dict_conf
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+    def to_yaml(self, filename):
+        with open(filename, "w") as f:
+            yaml.dump(self.to_dict(), f)
