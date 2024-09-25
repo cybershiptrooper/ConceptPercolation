@@ -3,10 +3,10 @@ data:
   batch_size: 128
   instr_ratio: 0.8
   max_sample_length: 75
-  n_descriptive_properties: 40
+  n_descriptive_properties: 460
   n_descriptive_values: 40
-  n_entities: 100
-  n_relative_properties: 20
+  n_entities: 50
+  n_relative_properties: 10
   num_iters: 100000.0
   num_of_classes_to_divide_over: 10
   num_workers: 0
