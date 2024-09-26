@@ -23,7 +23,7 @@ def define_prior(prior_size: int, alpha: float = 7e-2, prior_type: str = 'dirich
 
     elif prior_type == 'structured_zeros':
         x = np.zeros(prior_size)
-        x[:int(prior_size * alpha)] = 1
+        x[: max(1, int(prior_size * alpha))] = 1
 
     else:
         raise ValueError(f"Invalid prior type: {prior_type}")
@@ -32,7 +32,7 @@ def define_prior(prior_size: int, alpha: float = 7e-2, prior_type: str = 'dirich
     if np.isnan((x / x.sum()).squeeze() ).any():
         # assert x all zeros
         assert (x == 0).all(), RuntimeError(f"Got unexpected prior distribution, {x}")
-        return 1
+        x = np.ones_like(x)
     return (x / x.sum()).squeeze()
 
 

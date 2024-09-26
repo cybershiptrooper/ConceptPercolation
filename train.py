@@ -11,7 +11,7 @@ from utils import init_wandb, set_seed, save_config, open_log, cleanup
 from utils import sanity_checks, configure_optimizers, update_cosine_warmup_lr
 from utils import save_model, move_to_device, log_train, log_eval
 
-@hydra.main(config_path="./config", config_name="conf_98_464.yaml", version_base="1.3")
+@hydra.main(config_path="./config", config_name="conf_46_496.yaml", version_base="1.3")
 def main(cfg):
     set_seed(cfg.seed)
     # fp = open_log(cfg)
