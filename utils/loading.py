@@ -14,13 +14,13 @@ def load_model_for_iteration(
     return torch.load(f"{dirname}/{fname}", map_location=device)
 
 def load_model_from_hf(
-    repo_name, 
     it,
+    repo_name,
     epoch=0,
     device="cuda" if torch.cuda.is_available() else "cpu",
     branch="main",
     repo_type="model",
-    local_dir = "./cache",
+    local_dir="./cache",
     clear_cache=True,
 ):
     file_name = f"ckpt_epoch_{epoch}_iter_{it}.pt"

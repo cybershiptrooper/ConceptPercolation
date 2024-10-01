@@ -42,7 +42,7 @@ def estimate_llc_for_model(
     num_draws: int = 300,
     num_burnin_steps: int = 0,
     num_steps_bw_draws: int = 1,
-    device: torch.device | str = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    device: str = "cuda" if torch.cuda.is_available() else "cpu",
     online: bool = True,
     verbose: bool = False,
 ):
