@@ -7,20 +7,21 @@ from .PCSG import PCSG
 import pickle as pkl
 
 def get_dataloader(
-        n_relative_properties: int = 25,
-        n_descriptive_properties: int = 50,
-        n_descriptive_values: int = 25,
-        num_of_classes_to_divide_over: int = 3,
-        prior_param: float = 5e-2,
-        props_prior_type: str = 'dirichlet',
-        n_entities: int = 25,
-        instr_ratio: float = 0.0, 
-        max_sample_length: int=128,
-        num_iters: int = 1e6, 
-        batch_size: int = 32, 
-        num_workers: int = 0,
-        seed: int = 42,
-        ):
+    n_relative_properties: int = 25,
+    n_descriptive_properties: int = 50,
+    n_descriptive_values: int = 25,
+    num_of_classes_to_divide_over: int = 3,
+    prior_param: float = 5e-2,
+    props_prior_type: str = "dirichlet",
+    n_entities: int = 25,
+    instr_ratio: float = 0.0,
+    max_sample_length: int = 128,
+    num_iters: int = 1e6,
+    batch_size: int = 32,
+    num_workers: int = 0,
+    seed: int = 42,
+    evaluation: bool = False,
+):
     """
     Get the PCSG dataloader.
 
@@ -50,10 +51,11 @@ def get_dataloader(
         prior_param=prior_param,
         props_prior_type=props_prior_type,
         n_entities=n_entities,
-        instr_ratio=instr_ratio, 
-        num_iters=num_iters, 
+        instr_ratio=instr_ratio,
+        num_iters=num_iters,
         max_sample_length=max_sample_length,
         seed=seed,
+        evaluation=evaluation,
     ) 
 
     # Create a dataloader
@@ -71,19 +73,21 @@ def get_dataloader(
 
 
 class PCSGDataset():
-    def __init__(self,
-        n_relative_properties = 96,
-        n_descriptive_properties = 360,
-        n_descriptive_values = 25,
-        num_of_classes_to_divide_over = 24,
-        prior_param = 5e-2,
-        props_prior_type = 'dirichlet',
-        n_entities = 25,
-        instr_ratio: float=0.0, 
-        num_iters: int=1e6,
-        max_sample_length: int=128,
-        seed: int=42,
-        ):
+    def __init__(
+        self,
+        n_relative_properties=96,
+        n_descriptive_properties=360,
+        n_descriptive_values=25,
+        num_of_classes_to_divide_over=24,
+        prior_param=5e-2,
+        props_prior_type="dirichlet",
+        n_entities=25,
+        instr_ratio: float = 0.0,
+        num_iters: int = 1e6,
+        max_sample_length: int = 128,
+        seed: int = 42,
+        evaluation: bool = False,
+    ):
         """
         Initialize the PCSG dataset.
         Args:
@@ -143,6 +147,7 @@ class PCSGDataset():
         # Generation input template
         self.template = torch.tensor(self.PCSG.tokenize_sentence('Task: T0 \n Ops: <null> \n Out:'))
 
+        self.evaluation = evaluation
 
     def save_grammar(self, path_to_results: str):
         """
@@ -252,4 +257,12 @@ class PCSGDataset():
                     torch.tensor([self.pad_token_id] * (self.max_sample_length - len(sequence)))
                     ))
                 break
-        return sequence, symb_sequence, seq_length, seq_logprob, 0
+
+        if not self.evaluation:
+            return sequence, symb_sequence, seq_length, seq_logprob, 0
+
+        inputs, labels = sequence[:-1], sequence[1:]
+        labels = labels.clone()
+        mask = torch.ones_like(inputs)
+        mask[inputs == self.pad_token_id] = 0
+        return inputs, labels, mask

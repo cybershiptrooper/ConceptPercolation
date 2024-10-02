@@ -14,19 +14,14 @@ from .loading import load_model_for_iteration
 
 
 def evaluate_fn(model, data, pad_token_id, config):
-    sequences, symb_sequences, seq_lengths, seq_logprobs, _ = data
-    B = sequences.size(0)
-    inputs, labels = move_to_device([sequences[:, :-1], sequences[:, 1:]], config.device)
-    labels = labels.clone()
-    labels[labels == pad_token_id] = -100  # Mask padding
+    inputs, labels, mask = data
     logits = model(inputs)  # (B, L-1, V)
     loss = F.cross_entropy(
-        logits.reshape(-1, logits.size(-1)),
-        labels.reshape(-1),
-        ignore_index=-100,
+        logits.transpose(1, 2),
+        labels,
         reduction="none",
     )  # (B*L-1)
-    loss = loss.reshape(B, -1).mean()
+    loss = (loss * mask).sum() / mask.sum()
     return loss, {}
 
 
@@ -75,12 +70,20 @@ def calculate_llc_for_file(
     optimizer_kwargs: dict = dict(lr=1e-3, localization=200.0, nbeta=30),
     num_chains: int = 5,
     num_draws: int = 100,
+    vocab_size: int = None,
 ):
     device = config.device
     if torch.cuda.is_available() and device == "cuda":
         torch.cuda.empty_cache()
     model_info = model_loader(iteration, model_dir, epoch=0)
-    model = GPT(config.model, dataloader.dataset.PCSG.vocab_size)
+    if vocab_size is None:
+        try:
+            vocab_size = dataloader.dataset.PCSG.vocab_size
+        except AttributeError:
+            raise ValueError(
+                "vocab_size must be provided if dataloader does not have PCSG attribute"
+            )
+    model = GPT(config.model, vocab_size)
     model.load_state_dict(model_info["net"])
     if torch.cuda.is_available() and device == "cuda":
         torch.cuda.empty_cache()
