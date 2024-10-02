@@ -13,7 +13,7 @@ from utils import move_to_device
 from .loading import load_model_for_iteration
 
 
-def evaluate_fn(model, data, pad_token_id, config):
+def evaluate_fn(model, data):
     inputs, labels, mask = data
     logits = model(inputs)  # (B, L-1, V)
     loss = F.cross_entropy(
@@ -65,7 +65,7 @@ def calculate_llc_for_file(
     dataloader,
     model_dir,
     config,
-    evaluate_fn: typing.Callable,
+    evaluate_fn: typing.Callable = evaluate_fn,
     model_loader: typing.Callable = load_model_for_iteration,
     optimizer_kwargs: dict = dict(lr=1e-3, localization=200.0, nbeta=30),
     num_chains: int = 5,

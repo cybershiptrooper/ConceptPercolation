@@ -57,11 +57,11 @@ all_inputs = []
 all_labels = []
 all_masks = []
 for i, batch in tqdm(enumerate(dataloader)):
-    if i > 1000:
+    if i > 100:
         break
     sequences, symb_sequences, seq_lengths, seq_logprobs, _ = batch
-    inputs, labels = move_to_device([sequences[:, :-1], sequences[:, 1:]], config.device)
-    labels = labels.clone()
+    inputs = sequences[:, :-1]
+    labels = sequences[:, 1:].clone()
     # procesed_batch = [inputs, labels]
     all_inputs.append(inputs)
     all_labels.append(labels)
