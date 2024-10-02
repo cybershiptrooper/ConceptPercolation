@@ -48,7 +48,7 @@ dataloader = get_dataloader(
 
 # %%
 pad_token_id = dataloader.dataset.pad_token_id
-evaluator = partial(evaluate_fn, pad_token_id=pad_token_id, config=config)
+evaluator = evaluate_fn  # , pad_token_id=pad_token_id, config=config)
 
 # %%
 llc_outputs = []
