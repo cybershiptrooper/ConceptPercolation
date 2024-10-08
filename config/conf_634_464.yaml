@@ -1,0 +1,64 @@
+bf16: true
+data:
+  batch_size: 128
+  instr_ratio: 0.8
+  max_sample_length: 75
+  n_descriptive_properties: 460
+  n_descriptive_values: 40
+  n_entities: 50
+  n_relative_properties: 10
+  num_iters: 100000.0
+  num_of_classes_to_divide_over: 10
+  num_workers: 0
+  prior_param: 0.1
+  props_prior_type: structured_zeros
+defaults:
+- _self_
+- override hydra/job_logging: disabled
+- override hydra/hydra_logging: disabled
+deploy: true
+device: cuda
+epochs: 1
+eval:
+  cond_gen: false
+  grammar: true
+  llhood: true
+  reachable_pairs: true
+  save_tables: false
+  unscramble: true
+hydra:
+  job:
+    chdir: false
+  output_subdir: null
+  run:
+    dir: .
+  sweep:
+    dir: .
+    subdir: .
+log:
+  eval_interval: 100
+  increase_save_interval: false
+  log_interval: 10
+  save_interval: 10
+  save_multiple: true
+model:
+  bias: false
+  compile: false
+  context_size: 256
+  dropout: 0.0
+  mlp: true
+  n_embd: 32
+  n_head: 2
+  n_layer: 2
+optimizer:
+  beta1: 0.9
+  beta2: 0.95
+  decay_lr: true
+  grad_clip: 1.0
+  learning_rate: 0.001
+  min_lr: 0.001
+  train_iters: 100000.0
+  warmup_iters: 200
+  weight_decay: 0.0001
+seed: 2
+tag: scratch
