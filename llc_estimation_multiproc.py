@@ -1,12 +1,13 @@
 import wandb
-import io
 import pickle
 import dotenv
 import os
 
+from utils.logging import log_object_to_wandb
+
 try:
-    import torch_xla.core.xla_model as xm
-    import torch_xla.distributed.xla_multiprocessing as xmp
+    import torch_xla.core.xla_model as xm  # type: ignore
+    import torch_xla.distributed.xla_multiprocessing as xmp  # type: ignore
 except ImportError:
     pass
 
@@ -28,25 +29,11 @@ def process_iteration(it_no, dataloader, hf_repo_name, config, device, num_chain
         device=device,
         **kwargs,
     )
-    
-    # Log LLC output to Wandb
-    log_llc_to_wandb(it_no, llc_output)
-    
+
     return llc_output
 
 
-def log_llc_to_wandb(it_no, llc_output):
-    # Serialize LLC output using pickle
-    llc_pickle = pickle.dumps(llc_output)
-    
-    # Create a file-like object in memory
-    llc_file = io.BytesIO(llc_pickle)
-    
-    # Log the file to Wandb
-    wandb.log({f"llc_output_{it_no}": wandb.File(llc_file, name=f"llc_output_{it_no}.pkl")})
-
-
-def main_tpu(tpu_idx, it_no, hf_repo_name, config, dataset, vocab_size):
+def main_tpu(tpu_idx, it_no, hf_repo_name, config, dataset, vocab_size, optimizer_kwargs):
     dataloader = DataLoader(
         dataset,
         batch_size=config.data.batch_size,
@@ -54,11 +41,17 @@ def main_tpu(tpu_idx, it_no, hf_repo_name, config, dataset, vocab_size):
         shuffle=True,
     )
     process_iteration(
-        it_no, dataloader, hf_repo_name, config, device=xm.xla_device(), vocab_size=vocab_size
+        it_no,
+        dataloader,
+        hf_repo_name,
+        config,
+        device=xm.xla_device(),
+        vocab_size=vocab_size,
+        optimizer_kwargs=optimizer_kwargs,
     )
 
 
-def main_cpu(iters, hf_repo_name, config):
+def main_cpu(iters, hf_repo_name, config, optimizer_kwargs, use_wandb=True):
     dataloader, vocab_size = get_dataloader_and_vocab_size(
         config=config, preloaded_batches=True, eval=True
     )
@@ -72,15 +65,36 @@ def main_cpu(iters, hf_repo_name, config):
             num_chains=4,
             vocab_size=vocab_size,
             cores=4,
+            optimizer_kwargs=optimizer_kwargs,
         )
+
+        # Log LLC output to Wandb
+        name = f"llc_output_it{it_no}"
+        suffix = f"e{optimizer_kwargs['lr']}_g{optimizer_kwargs['localization']}_b{optimizer_kwargs['nbeta']}"
+
+        if use_wandb:
+            log_object_to_wandb(
+                llc_output,
+                file_name=name + suffix,
+            )
+
+        os.makedirs(f"results/{suffix}", exist_ok=True)
+        with open(f"results/{suffix}/llc_output_{it_no}.pkl", "wb") as f:
+            pickle.dump(llc_output, f)
 
 
 # Main function that determines the execution environment
 def main(iters, hf_repo_name, config, run_on, use_wandb=True):
     dotenv.load_dotenv("~/timaeus/.env")
+    optimizer_kwargs = dict(lr=5e-3, localization=100.0, nbeta=30)
     if use_wandb:
         wandb.login(key=os.getenv('WANDB_API_KEY'))
-        wandb.init(project="concept-percolation-llc", config=config, name=hf_repo_name)
+        name = f"{hf_repo_name}_{optimizer_kwargs['lr']}_{optimizer_kwargs['localization']}_{optimizer_kwargs['nbeta']}"
+        wandb.init(
+            project="concept-percolation-llc",
+            config={**config.to_dict(), **optimizer_kwargs},
+            name=name,
+        )
     
     if run_on == "tpu":
         print("Running on TPU")
@@ -89,11 +103,14 @@ def main(iters, hf_repo_name, config, run_on, use_wandb=True):
         )
         preloaded_dataset = make_preloaded_dataset(default_loader)
         for it_no in iters:
-            xmp.spawn(main_tpu, args=(it_no, hf_repo_name, config, preloaded_dataset, vocab_size))
+            xmp.spawn(
+                main_tpu,
+                args=(it_no, hf_repo_name, config, preloaded_dataset, vocab_size, optimizer_kwargs),
+            )
     elif run_on == "cpu":
         print("Running on CPU/Multiprocessing")
         print("Make sure USE_TPU_BACKEND is set to 0 in your .env")
-        main_cpu(iters, hf_repo_name, config)
+        main_cpu(iters, hf_repo_name, config, optimizer_kwargs, use_wandb=use_wandb)
     else:
         raise NotImplementedError
     
@@ -102,7 +119,7 @@ def main(iters, hf_repo_name, config, run_on, use_wandb=True):
 
 
 if __name__ == "__main__":
-    run_on = "tpu"  # or 'cpu'. note that this is NOT the device the process ultimately runs on!
+    run_on = "cpu"  # or 'cpu'. note that this is NOT the device the process ultimately runs on!
 
     hf_repo_name = "cybershiptrooper/ConceptPerlocation_ckpts_98k"
     model_dir = f"results/scratch/{hf_repo_name}"
@@ -122,4 +139,4 @@ if __name__ == "__main__":
 
 
     # Call the main function with the appropriate environment
-    main(iters, hf_repo_name, config, run_on, use_wandb=True)
+    main(iters, hf_repo_name, config, run_on, use_wandb=False)

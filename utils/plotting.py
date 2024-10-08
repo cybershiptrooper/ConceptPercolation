@@ -5,20 +5,6 @@ from typing import Literal
 import wandb
 import io
 
-def log_figure_to_wandb(fig, name):
-    """
-    Log a matplotlib figure to wandb and return the image.
-    """
-    # Save the figure to a byte buffer
-    buf = io.BytesIO()
-    fig.savefig(buf, format='png')
-    buf.seek(0)
-    
-    # Log the figure to wandb
-    image = wandb.Image(buf)
-    wandb.log({name: image})
-    
-    return image
 
 def plot_trace(
     llcs,
@@ -80,7 +66,11 @@ def plot_trace(
     
     # Log the figure to wandb and return the image
     if log_to_wandb:
-        log_figure_to_wandb(fig, f"trace_{eps}_{gammas}_{version}")
+        wandb.log(
+            {
+                f"trace_eps_{'-'.join(map(str, eps))}_gamma_{'-'.join(map(str, gammas))}_{version}": fig
+            }
+        )
     return fig
 
 def plot_variance_vs_mean(llcs, eps, gammas, figsize=(10, 10), log_to_wandb: bool = True):
@@ -102,7 +92,11 @@ def plot_variance_vs_mean(llcs, eps, gammas, figsize=(10, 10), log_to_wandb: boo
     
     # Log the figure to wandb and return the image
     if log_to_wandb:
-        log_figure_to_wandb(fig, f"variance_vs_mean_{eps}_{gammas}")
+        wandb.log(
+            {
+                f"variance_vs_mean_eps_{'-'.join(map(str, eps))}_gamma_{'-'.join(map(str, gammas))}": fig
+            }
+        )
     return fig
 
 def plot_normalised_stds(llcs, eps, gammas, llc=True, log_to_wandb: bool = True):
@@ -131,5 +125,9 @@ def plot_normalised_stds(llcs, eps, gammas, llc=True, log_to_wandb: bool = True)
     
     # Log the figure to wandb and return the image
     if log_to_wandb:
-        log_figure_to_wandb(fig, f"normalised_stds_{eps}_{gammas}")
+        wandb.log(
+            {
+                f"normalised_stds_eps_{'-'.join(map(str, eps))}_gamma_{'-'.join(map(str, gammas))}": fig
+            }
+        )
     return fig

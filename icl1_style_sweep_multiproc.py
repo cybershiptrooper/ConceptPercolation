@@ -5,12 +5,12 @@ import torch.multiprocessing as mp
 import wandb
 
 try:
-    import torch_xla.core.xla_model as xm
-    import torch_xla.distributed.xla_multiprocessing as xmp
+    import torch_xla.core.xla_model as xm  # type: ignore
+    import torch_xla.distributed.xla_multiprocessing as xmp  # type: ignore
 except ImportError:
     pass
 
-import tempfile
+from utils.logging import log_llc_to_wandb
 
 from dgp import get_dataloader_and_vocab_size, make_preloaded_dataset
 from torch.utils.data import DataLoader
@@ -40,19 +40,6 @@ def process_iteration(
     )
 
     return (epsilon, gamma), llc_output
-
-
-def log_llc_to_wandb(iteration, epsilon, gamma, llc_output):
-    print("logging to wandb", f"llc_output_it{iteration}_e{epsilon}_g{gamma}")
-
-    # Create a temporary file
-    with tempfile.NamedTemporaryFile(delete=True) as temp_file:
-        pickle.dump(llc_output, temp_file)
-        temp_file_full_path = temp_file.name
-        temp_file_dir = os.path.dirname(temp_file.name)
-        wandb.save(glob_str=temp_file_full_path, base_path=temp_file_dir)
-
-    print("logged to wandb")
 
 
 def main_tpu(tpu_idx, params, hf_repo_name, config, dataset, vocab_size, results_dict):
@@ -146,7 +133,7 @@ def main(iteration, epsilons, gammas, hf_repo_name, config, run_on, use_wandb=Tr
 
 
 if __name__ == "__main__":
-    run_on = "tpu"  # or 'cpu'
+    run_on = "cpu"  # or 'cpu'
 
     hf_repo_name = "cybershiptrooper/ConceptPerlocation_ckpts_98k"
     model_dir = f"results/scratch/{hf_repo_name}"

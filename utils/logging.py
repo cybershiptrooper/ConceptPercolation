@@ -3,10 +3,11 @@ import wandb
 import numpy as np
 import random
 import os
-import sys
 import warnings
 import yaml
 from omegaconf import OmegaConf
+import tempfile
+import pickle
 
 
 # Sanity checks
@@ -239,3 +240,31 @@ def save_model(cfg, net, optimizer, it, epoch=0, save_init=False):
         # wandb.save(fname)
         print(f"Saved model to {fname}")
         return fdir
+
+
+def log_llc_to_wandb(iteration, epsilon, gamma, llc_output):
+    print("logging to wandb", f"llc_output_it{iteration}_e{epsilon}_g{gamma}")
+    log_object_to_wandb(llc_output, f"llc_output_it{iteration}_e{epsilon}_g{gamma}")
+    print("logged to wandb")
+
+
+def log_object_to_wandb(obj, file_name: str):
+    """
+    Pickles a Python object and logs it to WandB as a file using a temporary file.
+
+    Parameters:
+    - obj: The picklable Python object to log.
+    - artifact_name: Optional name for grouping the file in a WandB artifact.
+    """
+    # Create a temporary file
+    with open(f"./results/{file_name}.pkl", "wb") as temp_file:
+        # Pickle the object and write to the temporary file
+        pickle.dump(obj, temp_file)
+
+        # Flush to make sure data is written to disk before logging
+        temp_file.flush()
+
+        # Log the temporary file to WandB
+        wandb.save(f"./results/{file_name}.pkl", base_path="./results")
+
+    os.remove(f"./results/{file_name}")
